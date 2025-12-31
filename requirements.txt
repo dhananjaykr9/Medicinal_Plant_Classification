@@ -1,0 +1,10 @@
+streamlit
+tensorflow
+numpy
+opencv-python-headless
+pillow
+scikit-learn
+joblib
+pymongo
+firebase-admin
+certifi

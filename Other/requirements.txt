@@ -1,0 +1,15 @@
+streamlit
+numpy
+joblib
+opencv-python
+pillow
+requests
+wikipedia
+tensorflow
+scikit-learn
+google-auth
+google-auth-oauthlib
+pymongo
+certifi
+shap
+matplotlib

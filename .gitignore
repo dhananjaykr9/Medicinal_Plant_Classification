@@ -1,0 +1,27 @@
+# ===== Python =====
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.env
+
+# ===== Streamlit secrets (CRITICAL) =====
+.streamlit/secrets.toml
+
+# ===== Firebase =====
+*.json
+
+# ===== Virtual environment =====
+plant_env/
+venv/
+.env/
+
+# ===== OS files =====
+.DS_Store
+Thumbs.db
+
+# ===== Logs =====
+*.log
+
+# ===== Cache =====
+.cache/
