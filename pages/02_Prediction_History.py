@@ -103,7 +103,9 @@ if records:
         st.markdown("---")
         st.markdown("## 🔐 Admin Panel")
         admin_pass = st.text_input("Admin Password", type="password")
-        is_admin = admin_pass == "admin@123"
+        ADMIN_PASSWORD = st.secrets["admin"]["password"]
+        is_admin = admin_pass == ADMIN_PASSWORD
+      
 
     # ---------------- Filtering ----------------
     filtered_df = df[df["SVM Confidence"] >= min_conf]
