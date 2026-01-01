@@ -26,16 +26,23 @@ def load_base64_image(path):
 splash_logo_b64 = load_base64_image("assets/logo_leaflogic.png")
 
 # ============================================================
-# CSS STYLING + SPLASH SCREEN
+# CSS STYLING + SPLASH SCREEN (ENHANCED ONLY)
 # ============================================================
 st.markdown("""
 <style>
 
-/* ================= SPLASH SCREEN ================= */
+/* =============== GLOBAL THEME =============== */
+html, body {
+    background-color: #0e1117;
+    color: #eaeaea;
+    font-family: "Inter", sans-serif;
+}
+
+/* =============== SPLASH SCREEN =============== */
 #about-splash {
     position: fixed;
     inset: 0;
-    background: radial-gradient(circle at top, #0f2027, #0e1117 60%);
+    background: radial-gradient(circle at top, #0f2027, #0e1117 65%);
     display: flex;
     align-items: center;
     justify-content: center;
@@ -56,8 +63,8 @@ st.markdown("""
 }
 
 .splash-title {
-    font-size: 2.2rem;
-    font-weight: 700;
+    font-size: 2.3rem;
+    font-weight: 800;
     color: #90ee90;
     opacity: 0;
     animation: fadeUp 1s ease-out forwards;
@@ -88,27 +95,47 @@ st.markdown("""
     to { opacity: 0; visibility: hidden; }
 }
 
-/* ================= EXISTING UI ================= */
+/* =============== CONTENT STYLES =============== */
 .centered-img {
     display: block;
-    margin-left: auto;
-    margin-right: auto;
-    border-radius: 12px;
+    margin: 10px auto;
+    border-radius: 14px;
 }
 
+.centered-gif {
+    display: block;
+    margin: 15px auto;
+    width: 100%;
+    max-height: 160px;
+    object-fit: cover;
+    border-radius: 18px;
+}
+
+/* Glass section */
+.section {
+    padding: 1.2rem 1.4rem;
+    margin-bottom: 1.4rem;
+    background: linear-gradient(145deg, #1a1d24, #14161c);
+    border-left: 5px solid #4CAF50;
+    border-radius: 10px;
+    box-shadow: 0 6px 18px rgba(0,0,0,0.45);
+}
+
+/* Team Cards */
 .team-card {
-    border-radius: 12px;
-    padding: 15px;
+    border-radius: 14px;
+    padding: 18px 16px;
     text-align: center;
-    background-color: #262730;
+    background: linear-gradient(145deg, #262730, #1f2028);
     color: #f1f1f1;
-    margin: 10px;
+    margin: 8px;
     animation: fadeIn 1s ease-in-out;
-    box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.6);
-    transition: transform 0.3s ease;
+    box-shadow: 0px 8px 20px rgba(0, 0, 0, 0.65);
+    transition: transform 0.35s ease, box-shadow 0.35s ease;
 }
 .team-card:hover {
-    transform: translateY(-5px);
+    transform: translateY(-8px) scale(1.02);
+    box-shadow: 0px 14px 30px rgba(0,0,0,0.8);
 }
 
 .team-img {
@@ -120,41 +147,25 @@ st.markdown("""
     object-fit: cover;
 }
 
-.section {
-    padding: 1rem;
-    margin-bottom: 1rem;
-    background-color: #1e1e1e;
-    border-left: 5px solid #4CAF50;
-    border-radius: 6px;
-}
-
 a {
     color: #4FC3F7;
     text-decoration: none;
+    margin: 0 2px;
 }
 a:hover {
     text-decoration: underline;
 }
 
 @keyframes fadeIn {
-    0% { opacity: 0; transform: translateY(20px); }
+    0% { opacity: 0; transform: translateY(25px); }
     100% { opacity: 1; transform: translateY(0); }
 }
 
-.centered-gif {
-    display: block;
-    margin-left: auto;
-    margin-right: auto;
-    width: 100%;
-    max-height: 150px;
-    object-fit: cover;
-    border-radius: 16px;
-}
 </style>
 """, unsafe_allow_html=True)
 
 # ============================================================
-# SPLASH SCREEN HTML (BASE64 — GUARANTEED)
+# SPLASH SCREEN HTML
 # ============================================================
 if splash_logo_b64:
     st.markdown(f"""
@@ -168,28 +179,24 @@ if splash_logo_b64:
     """, unsafe_allow_html=True)
 
 # ============================================================
-# LOGO (EXISTING — UNCHANGED)
+# LOGO
 # ============================================================
-logo_b64 = load_base64_image("assets/logo.png")
+logo_b64 = load_base64_image("assets/logo8.png")
 if logo_b64:
     st.markdown(
-        f'<img src="data:image/jpeg;base64,{logo_b64}" width="250" class="centered-img">',
+        f'<img src="data:image/jpeg;base64,{logo_b64}" width="110" class="centered-img">',
         unsafe_allow_html=True
     )
-else:
-    st.warning("Logo image not found.")
 
 # ============================================================
-# BANNER GIF (EXISTING — UNCHANGED)
+# BANNER GIF
 # ============================================================
-gif_b64 = load_base64_image("assets/leaflogic.gif")
+gif_b64 = load_base64_image("assets/plant7.gif")
 if gif_b64:
     st.markdown(
         f'<img src="data:image/gif;base64,{gif_b64}" class="centered-gif">',
         unsafe_allow_html=True
     )
-else:
-    st.warning("Banner GIF not found.")
 
 # ============================================================
 # TITLE & INTRO
@@ -198,74 +205,83 @@ st.title("📑 About the Project")
 
 st.markdown("""
 <div class="section">
-<h3>🌿 Advanced Medicinal Plant Detection System</h3>
+<h3>🌿 Advanced Medicinal Plant Identification System</h3>
 <p>
 This project is a hybrid AI-powered solution designed to <b>identify medicinal plants</b>
-using image classification, with advanced enrichment from biological and public data sources.
+using image classification, enriched with biological intelligence and public knowledge APIs.
 </p>
 </div>
 """, unsafe_allow_html=True)
 
 # ============================================================
-# TEAM MEMBERS (UNCHANGED)
+# TEAM MEMBERS (UNCHANGED LOGIC)
 # ============================================================
 st.markdown("### 👨🏻‍💻 Team Members")
 
 teams = [
     {
-        "name": "Dhananjay Kharkar",
-        "role": "Lead Developer, IoT + AI",
-        "class": "Student",
+        "name": "Dr. S. V. Sonekar",
+        "role": "Project Mentor & Guide",
+        "class": "Principal",
         "destination": "JDCOEM, Nagpur",
-        "photo": "assets/team/dhananjay1.jpg",
-        "linkedin": "https://www.linkedin.com/in/dhananjaykharkar/",
-        "email": "mailto:dkharkar00@gmail.com"
+        "photo": "assets/team/principal_sir1.png",
+        "linkedin": "https://www.linkedin.com/in/shrikant-sonekar-52b393ba?originalSubdomain=in",
+        "email": "mailto:principal@jdcoem.ac.in",
+        "img_size": 95
     },
     {
         "name": "Dipanshu Likhar",
-        "role": "Backend + Integration & Database",
-        "class": "Student",
-        "destination": "JDCOEM, Nagpur",
-        "photo": "assets/team/dipanshu.jpg",
-        "linkedin": "#",
-        "email": "mailto:aditi@vnit.ac.in"
-    },
-    {
-        "name": "Prjawal Khapekar",
         "role": "Data Handling & Processing",
         "class": "Student",
         "destination": "JDCOEM, Nagpur",
-        "photo": "assets/team/prajwal.jpg",
+        "photo": "assets/team/Dipanshu.png",
+        "linkedin": "https://www.linkedin.com/in/dipanshulikhar/?originalSubdomain=in",
+        "email": "mailto:likhardipanshu@gmail.com",
+        "img_size": 95
+    },
+    {
+        "name": "Dhananjay Kharkar",
+        "role": "Developer, Pipeline Handling",
+        "class": "Student",
+        "destination": "JDCOEM, Nagpur",
+        "photo": "assets/team/Dhananjay.png",
+        "linkedin": "https://www.linkedin.com/in/dhananjaykharkar/",
+        "email": "mailto:dkharkar00@gmail.com",
+        "img_size": 95
+    },
+    {
+        "name": "Prajwal Khapekar",
+        "role": "Backend + Integration & Database",
+        "class": "Student",
+        "destination": "JDCOEM, Nagpur",
+        "photo": "assets/team/prajwal.png",
         "linkedin": "https://www.linkedin.com/in/prajwal-khapekar-71618a277/",
-        "email": "prajwalkhapekar96@gmail.com"
+        "email": "prajwalkhapekar96@gmail.com",
+        "img_size": 95
     },
     {
         "name": "Harshal Chhatri",
         "role": "Technical & Documentation",
         "class": "Student",
         "destination": "JDCOEM, Nagpur",
-        "photo": "assets/team/harshal.jpg",
+        "photo": "assets/team/harshal1.png",
         "linkedin": "https://www.linkedin.com/in/harshal-chhatri-767089224/",
-        "email": "mailto:harshalchhatri231@gmail.com"
-    },
-    {
-        "name": "Dr. S. V. Sonekar",
-        "role": "Faculty Mentor & Guide",
-        "class": "Principal",
-        "destination": "JDCOEM, Nagpur",
-        "photo": "assets/team/principal_sir.jpg",
-        "linkedin": "#",
-        "email": "mailto:principal@jdcoem.ac.in"
+        "email": "mailto:harshalchhatri231@gmail.com",
+        "img_size": 95
     }
 ]
 
 cols = st.columns(len(teams))
 for i, member in enumerate(teams):
     photo_b64 = load_base64_image(member["photo"])
+    img_size = member.get("img_size", 100)
+
     with cols[i]:
         st.markdown(f"""
         <div class="team-card">
-            <img src="data:image/jpeg;base64,{photo_b64}" class="team-img">
+            <img src="data:image/jpeg;base64,{photo_b64}"
+                 class="team-img"
+                 style="width:{img_size}px; height:{img_size}px;">
             <b>{member['name']}</b><br>
             {member['class']}<br>
             <small>{member['destination']}</small><br>
@@ -276,7 +292,7 @@ for i, member in enumerate(teams):
         """, unsafe_allow_html=True)
 
 # ============================================================
-# REMAINING SECTIONS
+# REMAINING SECTIONS (UNCHANGED CONTENT)
 # ============================================================
 st.markdown("""
 ---
@@ -296,7 +312,7 @@ To provide an accurate, explainable, and educational plant identification system
 | ResNet-50 | CNN feature extraction |
 | QPSO | Feature selection |
 | SVM | Classification |
-| Wikipedia API | Knowledge enrichment |
+| Wikipedia | Knowledge enrichment |
 | Streamlit | Web deployment |
 
 ---
@@ -306,7 +322,7 @@ To provide an accurate, explainable, and educational plant identification system
 2. CNN extracts features  
 3. QPSO optimizes features  
 4. SVM predicts plant  
-5. APIs enrich knowledge  
+5. Enrich knowledge  
 6. Dashboard visualizes results  
 
 ---
@@ -315,12 +331,10 @@ To provide an accurate, explainable, and educational plant identification system
 We thank **JDCOEM Nagpur** for support and mentorship.
 
 ---
-
-📬 Visit our GitHub or contact the team for collaboration.
 """)
 
 # ============================================================
 # FOOTER
 # ============================================================
 st.markdown("<hr>", unsafe_allow_html=True)
-st.caption("🛠 Developed by Team LeafLogic | 🚀 Patent-ready Project")
+st.caption("© Team LeafLogic | AI System for Medicinal Plant Identification")
