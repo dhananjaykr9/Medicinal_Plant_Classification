@@ -267,4 +267,4 @@ if is_admin:
 # FOOTER
 # ============================================================
 st.divider()
-st.caption("© Team LeafLogic | Secure Role-Based AI Monitoring Dashboard")
+st.caption("© Team LeafLogic | AI System for Medicinal Plant Identification")
