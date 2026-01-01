@@ -328,9 +328,8 @@ To provide an accurate, explainable, and educational plant identification system
 ---
 
 ### 📢 Acknowledgments
-We thank **JDCOEM Nagpur** for support and mentorship.
+We thank **JDCOEM, Nagpur** for support and mentorship.
 
----
 """)
 
 # ============================================================
@@ -338,3 +337,4 @@ We thank **JDCOEM Nagpur** for support and mentorship.
 # ============================================================
 st.markdown("<hr>", unsafe_allow_html=True)
 st.caption("© Team LeafLogic | AI System for Medicinal Plant Identification")
+
