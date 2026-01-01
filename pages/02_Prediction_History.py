@@ -7,7 +7,6 @@ import firebase_admin
 from firebase_admin import credentials, firestore
 from datetime import datetime
 
-
 # ============================================================
 # PAGE CONFIG
 # ============================================================
@@ -20,6 +19,7 @@ st.markdown(
     """
 <style>
 body { background-color: #0e1117; }
+
 .history-card {
     background-color: #121212;
     border-radius: 16px;
@@ -28,20 +28,24 @@ body { background-color: #0e1117; }
     box-shadow: 0 6px 14px rgba(0,0,0,0.45);
     margin-bottom: 18px;
 }
+
 .history-title {
     color: #7CFF9B;
     font-size: 1.25rem;
     font-weight: 600;
     margin-bottom: 8px;
 }
+
 .history-row {
     font-size: 0.95rem;
     color: #dddddd;
     margin-bottom: 6px;
 }
+
 .feedback-yes { color: #7CFF9B; font-weight: 700; }
-.feedback-no { color: #ff6b6b; font-weight: 700; }
-.feedback-na { color: #aaaaaa; font-weight: 700; }
+.feedback-no  { color: #ff6b6b; font-weight: 700; }
+.feedback-na  { color: #aaaaaa; font-weight: 700; }
+
 .analytics-card {
     background-color: #101418;
     border-radius: 14px;
@@ -49,11 +53,13 @@ body { background-color: #0e1117; }
     border: 1px solid #2a2a2a;
     text-align: center;
 }
+
 .analytics-value {
     font-size: 1.6rem;
     font-weight: 700;
     color: #7CFF9B;
 }
+
 .analytics-label {
     font-size: 0.85rem;
     color: #bbbbbb;
@@ -78,13 +84,13 @@ st.divider()
 # ============================================================
 with st.sidebar:
     st.markdown("## 👤 Access Role")
+
     role = st.radio(
         "Select role",
         ["viewer", "analyst", "admin"],
         help="Viewer: read-only | Analyst: analytics & export | Admin: full access"
     )
 
-    role_password = None
     is_analyst = False
     is_admin = False
 
@@ -96,7 +102,7 @@ with st.sidebar:
 
         if role == "admin" and role_password == st.secrets["roles"]["admin_password"]:
             is_admin = True
-            is_analyst = True  # admin inherits analyst permissions
+            is_analyst = True
 
     if role == "viewer":
         st.info("Viewer mode: read-only access")
@@ -113,6 +119,7 @@ credentials_rest = service_account.Credentials.from_service_account_info(
     scopes=["https://www.googleapis.com/auth/datastore"]
 )
 credentials_rest.refresh(Request())
+
 HEADERS = {"Authorization": f"Bearer {credentials_rest.token}"}
 
 @st.cache_resource
@@ -131,19 +138,19 @@ PRED_URL = (
     f"https://firestore.googleapis.com/v1/projects/"
     f"{PROJECT_ID}/databases/(default)/documents/{PRED_COLLECTION}"
 )
+
 pred_data = requests.get(PRED_URL, headers=HEADERS).json()
 
 # ============================================================
-# PARSE DOCUMENTS
+# PARSE FIRESTORE DOCUMENTS
 # ============================================================
 def parse_firestore_docs(docs):
     rows = []
+
     for doc in docs:
         fields = doc.get("fields", {})
-
         ts_str = fields.get("Timestamp", {}).get("stringValue", "")
 
-        # ✅ SAFE datetime parsing (CRITICAL FIX)
         try:
             ts_dt = datetime.fromisoformat(ts_str.replace("Z", ""))
         except Exception:
@@ -157,45 +164,68 @@ def parse_firestore_docs(docs):
             "Family": fields.get("Family", {}).get("stringValue", "N/A"),
             "Wikipedia Summary": fields.get("Wikipedia Summary", {}).get("stringValue", ""),
             "Image URL": fields.get("Image URL", {}).get("stringValue", ""),
-            "Timestamp": ts_str,        # ✅ keep original (UI)
-            "Timestamp_dt": ts_dt,      # ✅ new (sorting)
+            "Timestamp": ts_str,
+            "Timestamp_dt": ts_dt,
             "User Feedback": fields.get("User Feedback", {}).get("stringValue", "Not Provided"),
         })
+
     return rows
 
 records = parse_firestore_docs(pred_data.get("documents", []))
 
 # ============================================================
+# 🔑 SAFE DATAFRAME INITIALIZATION (CRITICAL FIX)
+# ============================================================
+df = pd.DataFrame(
+    records,
+    columns=[
+        "SVM Class",
+        "SVM Confidence",
+        "Scientific Name",
+        "Genus",
+        "Family",
+        "Wikipedia Summary",
+        "Image URL",
+        "Timestamp",
+        "Timestamp_dt",
+        "User Feedback",
+    ]
+)
+
+# ============================================================
 # ANALYTICS (ANALYST + ADMIN)
 # ============================================================
-if records:
-    df = pd.DataFrame(records)
+if not df.empty and is_analyst:
+    total = len(df)
+    yes_cnt = (df["User Feedback"].str.lower() == "yes").sum()
+    no_cnt = (df["User Feedback"].str.lower() == "no").sum()
+    na_cnt = total - yes_cnt - no_cnt
 
-    if is_analyst:
-        total = len(df)
-        yes_cnt = (df["User Feedback"].str.lower() == "yes").sum()
-        no_cnt = (df["User Feedback"].str.lower() == "no").sum()
-        na_cnt = total - yes_cnt - no_cnt
+    st.markdown("## 📊 Feedback Analytics")
 
-        st.markdown("## 📊 Feedback Analytics")
+    c1, c2, c3, c4 = st.columns(4)
+    c1.markdown(f"<div class='analytics-card'><div class='analytics-value'>{total}</div><div class='analytics-label'>Total</div></div>", unsafe_allow_html=True)
+    c2.markdown(f"<div class='analytics-card'><div class='analytics-value'>{yes_cnt}</div><div class='analytics-label'>Correct</div></div>", unsafe_allow_html=True)
+    c3.markdown(f"<div class='analytics-card'><div class='analytics-value'>{no_cnt}</div><div class='analytics-label'>Incorrect</div></div>", unsafe_allow_html=True)
+    c4.markdown(f"<div class='analytics-card'><div class='analytics-value'>{na_cnt}</div><div class='analytics-label'>Not Provided</div></div>", unsafe_allow_html=True)
 
-        c1, c2, c3, c4 = st.columns(4)
-        c1.markdown(f"<div class='analytics-card'><div class='analytics-value'>{total}</div><div class='analytics-label'>Total</div></div>", unsafe_allow_html=True)
-        c2.markdown(f"<div class='analytics-card'><div class='analytics-value'>{yes_cnt}</div><div class='analytics-label'>Correct</div></div>", unsafe_allow_html=True)
-        c3.markdown(f"<div class='analytics-card'><div class='analytics-value'>{no_cnt}</div><div class='analytics-label'>Incorrect</div></div>", unsafe_allow_html=True)
-        c4.markdown(f"<div class='analytics-card'><div class='analytics-value'>{na_cnt}</div><div class='analytics-label'>Not Provided</div></div>", unsafe_allow_html=True)
-
-        st.divider()
+    st.divider()
 
 # ============================================================
-# FILTERING (NO CONFIDENCE FILTER)
+# FILTERING
 # ============================================================
 with st.sidebar:
     st.markdown("## 🔍 Filter Logs")
-    plant_filter = st.selectbox(
-        "Plant Class",
-        ["All Plants"] + sorted(df["SVM Class"].unique())
-    )
+
+    if not df.empty:
+        plant_filter = st.selectbox(
+            "Plant Class",
+            ["All Plants"] + sorted(df["SVM Class"].unique())
+        )
+    else:
+        plant_filter = "All Plants"
+        st.info("No logs available yet")
+
     sort_option = st.selectbox(
         "Sort By",
         ["Newest First", "Oldest First", "Confidence ↓", "Confidence ↑"]
@@ -203,31 +233,37 @@ with st.sidebar:
 
 filtered_df = df.copy()
 
-if plant_filter != "All Plants":
-    filtered_df = filtered_df[filtered_df["SVM Class"] == plant_filter]
+if not df.empty:
+    if plant_filter != "All Plants":
+        filtered_df = filtered_df[filtered_df["SVM Class"] == plant_filter]
 
-if sort_option == "Newest First":
-    filtered_df = filtered_df.sort_values("Timestamp_dt", ascending=False)
-elif sort_option == "Oldest First":
-    filtered_df = filtered_df.sort_values("Timestamp_dt", ascending=True)
-elif sort_option == "Confidence ↓":
-    filtered_df = filtered_df.sort_values("SVM Confidence", ascending=False)
+    if sort_option == "Newest First":
+        filtered_df = filtered_df.sort_values("Timestamp_dt", ascending=False)
+    elif sort_option == "Oldest First":
+        filtered_df = filtered_df.sort_values("Timestamp_dt", ascending=True)
+    elif sort_option == "Confidence ↓":
+        filtered_df = filtered_df.sort_values("SVM Confidence", ascending=False)
+    else:
+        filtered_df = filtered_df.sort_values("SVM Confidence", ascending=True)
+
+# ============================================================
+# DISPLAY HISTORY CARDS
+# ============================================================
+if filtered_df.empty:
+    st.info("No prediction logs to display.")
 else:
-    filtered_df = filtered_df.sort_values("SVM Confidence", ascending=True)
+    for _, row in filtered_df.iterrows():
+        fb = row["User Feedback"].lower()
+        fb_class = "feedback-yes" if fb == "yes" else "feedback-no" if fb == "no" else "feedback-na"
 
-# ============================================================
-# DISPLAY CARDS
-# ============================================================
-for _, row in filtered_df.iterrows():
-    fb = row["User Feedback"].lower()
-    fb_class = "feedback-yes" if fb == "yes" else "feedback-no" if fb == "no" else "feedback-na"
-
-    st.markdown(
-        f"""
+        st.markdown(
+            f"""
 <div class="history-card">
     <div class="history-title">🧠 {row['SVM Class']} ({row['SVM Confidence']*100:.2f}%)</div>
     <div style="display:flex; gap:16px;">
-        <div>{"<img src='"+row["Image URL"]+"' width='160' style='border-radius:12px'/>" if row["Image URL"] else "No image"}</div>
+        <div>
+            {"<img src='"+row["Image URL"]+"' width='160' style='border-radius:12px'/>" if row["Image URL"] else "No image"}
+        </div>
         <div>
             <div class="history-row"><b>Scientific:</b> {row['Scientific Name']}</div>
             <div class="history-row"><b>Genus:</b> {row['Genus']}</div>
@@ -239,13 +275,13 @@ for _, row in filtered_df.iterrows():
     </div>
 </div>
 """,
-        unsafe_allow_html=True
-    )
+            unsafe_allow_html=True
+        )
 
 # ============================================================
 # EXPORT (ANALYST + ADMIN)
 # ============================================================
-if is_analyst:
+if is_analyst and not filtered_df.empty:
     st.download_button(
         "⬇️ Download Logs (CSV)",
         filtered_df.to_csv(index=False),
@@ -267,4 +303,4 @@ if is_admin:
 # FOOTER
 # ============================================================
 st.divider()
-st.caption("© Team LeafLogic | AI System for Medicinal Plant Identification")
+st.caption("© Team LeafLogic | Secure Role-Based AI Monitoring Dashboard")
