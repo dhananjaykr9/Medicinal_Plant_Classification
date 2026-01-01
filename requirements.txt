@@ -1,5 +1,5 @@
-streamlit
-tensorflow
+streamlit>=1.28
+tensorflow==2.13.0
 numpy
 opencv-python-headless
 pillow
@@ -8,3 +8,6 @@ joblib
 pymongo
 firebase-admin
 certifi
+shap
+matplotlib
+numba
