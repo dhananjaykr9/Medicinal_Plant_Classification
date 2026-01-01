@@ -22,6 +22,15 @@ def load_base64(path):
         return base64.b64encode(f.read()).decode()
 
 # ============================================================
+# 🔹 ADDITION (FIX) — SECOND HELPER USED LATER
+# ============================================================
+def load_base64_image(path):
+    if not os.path.exists(path):
+        return None
+    with open(path, "rb") as f:
+        return base64.b64encode(f.read()).decode()
+
+# ============================================================
 # LOAD LOGO
 # ============================================================
 LOGO_PATH = "assets/logo_leaflogic.png"
@@ -52,7 +61,6 @@ st.markdown("""
     text-align: center;
 }
 
-/* 🔥 INCREASED LOGO SIZE */
 .splash-logo {
     width: 240px;
     max-width: 70vw;
@@ -77,7 +85,14 @@ st.markdown("""
     animation-delay: 1.3s;
 }
 
-/* Animations */
+/* 🔹 ADDITION (FIX) — USED BY LOGO BELOW */
+.centered-img {
+    display: block;
+    margin-left: auto;
+    margin-right: auto;
+    border-radius: 12px;
+}
+
 @keyframes logoPop {
     0% { opacity: 0; transform: scale(0.5); }
     60% { opacity: 1; transform: scale(1.08); }
@@ -146,7 +161,7 @@ st.markdown("""
 """, unsafe_allow_html=True)
 
 # ============================================================
-# SPLASH SCREEN (BASE64 — FINAL)
+# SPLASH SCREEN
 # ============================================================
 if logo_base64:
     st.markdown(f"""
@@ -160,14 +175,29 @@ if logo_base64:
     """, unsafe_allow_html=True)
 
 # ============================================================
+# LOGO (EXISTING — NOW WORKING)
+# ============================================================
+logo_b64 = load_base64_image("assets/logo8.png")
+if logo_b64:
+    st.markdown(
+        f'<img src="data:image/jpeg;base64,{logo_b64}" width="100" class="centered-img">',
+        unsafe_allow_html=True
+    )
+else:
+    st.warning("Logo image not found.")
+
+# ============================================================
 # MAIN CONTENT
 # ============================================================
 st.markdown('<div class="title">🌿 Medicinal Plant Identifier</div>', unsafe_allow_html=True)
-st.markdown('<div class="sub">🔬 AI-powered Plant Detection & Enrichment System</div>', unsafe_allow_html=True)
+st.markdown('<div class="sub">🔬 AI-powered Plant Identification & Enrichment System</div>', unsafe_allow_html=True)
 st.markdown("<hr>", unsafe_allow_html=True)
 
+# ============================================================
+# 🚨 MANDATORY DISCLAIMER — KNOWN CLASSES ONLY
+# ============================================================
 st.markdown("""
-<div class="card">
+<div class="card" style="border-left: 5px solid #ff8000;">
 Welcome to the <b>Medicinal Plant Identifier</b>, a hybrid AI-powered tool that identifies
 and explains medicinal plants using:
 <ul>
@@ -180,7 +210,22 @@ and explains medicinal plants using:
 """, unsafe_allow_html=True)
 
 st.markdown("""
-<div class="card">
+<div class="card" style="border-left: 5px solid #ff9800;">
+<b>⚠️ Known Classes Only Disclaimer</b><br><br>
+This system is trained on <b>five selected medicinal plant species</b>:
+<ul>
+    <li>Neem</li>
+    <li>Tulsi</li>
+    <li>Aloe Vera</li>
+    <li>Moringa</li>
+    <li>Hibiscus</li>
+</ul>
+Predictions are <b>strictly restricted</b> to these classes only.
+</div>
+""", unsafe_allow_html=True)
+
+st.markdown("""
+<div class="card" style="border-left: 5px solid #ff8500;">
 <h4>🧠 Why this tool?</h4>
 <ul>
     <li>Accurate leaf-based classification</li>
@@ -206,5 +251,5 @@ footer {visibility: hidden;}
 """, unsafe_allow_html=True)
 
 st.markdown("""<hr>
-<center>© 2025 JDCOEM Medical Plant Detection | Designed by Team LeafLogic</center>
+<center>© 2025 JDCOEM Medical Plant Identifier | Designed by Team LeafLogic</center>
 """, unsafe_allow_html=True)
