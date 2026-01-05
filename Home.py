@@ -1,6 +1,8 @@
 import streamlit as st
 import base64
 import os
+from agent import PredictionAgent
+
 
 # ============================================================
 # PAGE CONFIG
@@ -192,6 +194,8 @@ else:
 st.markdown('<div class="title">🌿 Medicinal Plant Identifier</div>', unsafe_allow_html=True)
 st.markdown('<div class="sub">🔬 AI-powered Plant Identification & Enrichment System</div>', unsafe_allow_html=True)
 st.markdown("<hr>", unsafe_allow_html=True)
+
+agent = PredictionAgent()
 
 # ============================================================
 # 🚨 MANDATORY DISCLAIMER — KNOWN CLASSES ONLY
