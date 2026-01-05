@@ -9,8 +9,13 @@ from datetime import datetime
 import base64
 
 import tensorflow as tf
-from tensorflow.keras.models import load_model, Model
-from tensorflow.keras.applications.resnet50 import preprocess_input
+#from tensorflow.keras.models import load_model, Model
+#from tensorflow.keras.applications.resnet50 import preprocess_input
+
+import keras
+from keras.models import load_model, Model
+from keras.applications.resnet50 import preprocess_input
+
 
 from pymongo import MongoClient
 import certifi
@@ -18,6 +23,8 @@ from zoneinfo import ZoneInfo
 import shap
 import matplotlib.pyplot as plt
 
+# Import the agent
+from agent import PredictionAgent
 
 # ============================================================
 # IST TIME HELPER (CORRECT)
@@ -266,7 +273,7 @@ This system is trained on <b>five</b> selected medicinal plant species: <b>Neem,
 </div>
 """, unsafe_allow_html=True)
 
- #st.warning("We do not claim 100% Accuracy")
+#st.warning("We do not claim 100% Accuracy")
 
 st.markdown(
     """
@@ -348,9 +355,9 @@ CLASS_NAMES_PATH = os.path.join(PROJECT_ROOT, "class_names.npy")
 def load_assets():
     resnet_model = load_model(RESNET_MODEL_PATH)
 
-    from tensorflow.keras.layers import GlobalAveragePooling2D, GlobalMaxPool2D
+    from keras.layers import GlobalAveragePooling2D, GlobalMaxPooling2D
     for layer in reversed(resnet_model.layers):
-        if isinstance(layer, (GlobalAveragePooling2D, GlobalMaxPool2D)):
+        if isinstance(layer, (GlobalAveragePooling2D, GlobalMaxPooling2D)):
             gap_output = layer.output
             break
     else:
@@ -526,18 +533,31 @@ if uploaded:
 
     max_conf = top3[0][1]
 
+    # ============================================================
+    # 🤖 AGENTIC AI DECISION (NEW INTEGRATION)
+    # ============================================================
+    agent = PredictionAgent()
+    predicted_class = top3[0][0]
+    pred_confidence = max_conf
+    
+    agent_response = agent.decide(confidence=pred_confidence)
+    if agent_response["decision"] == "REUPLOAD":
+        st.warning(agent_response["message"])
+        st.stop()
+    #st.write("Agent decision:", agent_response["decision"])
+
     # 🔹 UI ENHANCEMENT (ADDED) — CONFIDENCE BAR
     st.progress(min(max_conf, 1.0))
 
     if max_conf < CONF_THRESHOLD:
         st.warning("Prediction confidence is low. Result marked as **Unknown**. This plant may be outside the trained medicinal plant classes.")
     else:
-        predicted_class = top3[0][0]
+        # predicted_class already assigned for the agent above
         st.success(f"Final Prediction: **{predicted_class}**")
 
         plant = get_mongo_details(predicted_class)
         st.info("Confidence represents relative likelihood among trained classes, not **absolute certainty**.")
-               
+                
         st.markdown("## 🌿 Plant Information")
         st.markdown(
             f"""
